@@ -132,5 +132,4 @@ public class Nauka {
         
         System.out.println(suma);
     }
-    
 }
