@@ -198,6 +198,30 @@ public class Main4 {
         return wynik;
 }
     
+    public static int silniaRekurencyjna(int n){
+        int wynik = 0;
+        if(n == 0)
+            wynik = 1;
+        else if(n > 0)
+            wynik = n * silnia(n - 1);
+               
+        return wynik;
+    }
+    
+        public static int silnia(int n){
+        int wynik = 1;
+        int wyrazPoprzedni = 1;
+        if(n == 0)
+            wynik = 1;
+        else if(n > 0){
+            for(int i = 1; i <= n; i++){
+                wynik *= wyrazPoprzedni;
+                wyrazPoprzedni = i;
+            }
+        }
+        return wynik;
+    }
+    
     public static void main(String[] args) throws FileNotFoundException {
 
         System.out.println("Najmniejsza wspolna wielokrotnosc to: " + najWW(3, 5));
@@ -287,6 +311,7 @@ public class Main4 {
 //            System.out.println();
         }
     
-    
+        System.out.println(silniaRekurencyjna(6));
+        System.out.println(silnia(6));
     }
 }
