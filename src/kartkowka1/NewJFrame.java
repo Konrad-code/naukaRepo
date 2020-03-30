@@ -1,8 +1,10 @@
 package kartkowka1;
 
+import com.sun.jdi.connect.spi.Connection;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.Statement;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -23,6 +25,10 @@ public class NewJFrame extends javax.swing.JFrame {
     /**
      * Creates new form NewJFrame
      */
+    private static final String JDBC_DRIVER = "org.postgresql.Driver";
+    private static final String URL = "jdbc:postgresql://localhost/jedi";
+    private static final String LOGIN = "postgres";
+    private static final String PASSWORD = "maxi55";
     static Color kolorMiecza = null;
     private ArrayList<Jedi> listaJedi = new ArrayList<Jedi>();
     private ArrayList<String> listaJediString = new ArrayList<String>();
@@ -42,6 +48,7 @@ public class NewJFrame extends javax.swing.JFrame {
         eksportZakony.addActionListener(new AkcjaSaveFileZakony());
         importJedi.addActionListener(new AkcjaOpenFileJedi());
         importZakony.addActionListener(new AkcjaOpenFileZakony());
+        wybierzJediDoZakonu.addActionListener(new DodajJediDoZakonu());
         mocMiecza.setText("" + sliderMocMiecza.getValue());
         jListaJedi.setModel(DLM);
         jListaZakonowJedi.setModel(DLMZakony);
@@ -574,13 +581,39 @@ public class NewJFrame extends javax.swing.JFrame {
 
         /* Create and display the form */
         
-        
+        /*
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new NewJFrame().setVisible(true);
-                
+                try {
+			Class.forName(JDBC_DRIVER);
+			
+			Connection connection = DriverManager.getConnection(URL, LOGIN, PASSWORD);
+			Statement statement = connection.createStatement();
+			
+			String query = "SELECT ID_Osoba, Osoba.Imie, Osoba.Nazwisko, Zwierze.Rasa, Zwierze.Imie AS Imie_Zwierzecia FROM OSOBA, Zwierze WHERE Osoba.Zwierze_ID = Zwierze.ID_Zwierze";
+			
+			ResultSet rs = statement.executeQuery(query);
+
+			while(rs.next()) {
+				int id = rs.getInt("ID_Osoba");
+				String imie = rs.getString("Imie");
+				String nazwisko = rs.getString("Nazwisko");
+				String rasaZwierza = rs.getString("Rasa");
+				String imieZwierza = rs.getString("Imie_Zwierzecia");
+				
+				System.out.printf("ID: %d, Imie opiekuna: %s, Nazwisko opiekuna: %s, Rasa zwierza: %s, Imie zwierza: %s\n", id, imie, nazwisko, rasaZwierza, imieZwierza);
+			}
+			
+		}catch(ClassNotFoundException e) {
+			System.err.println("Bledny sterownik do bazy danych: " + e.getMessage());
+		}catch(SQLException e) {
+			System.err.println("Bledny sterownik do bazy danych: " + e.getMessage());
+		}
+		
             }
         });
+        */
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -622,6 +655,13 @@ public class NewJFrame extends javax.swing.JFrame {
     private javax.swing.JButton zarejestrujJediWZakonie;
     // End of variables declaration//GEN-END:variables
 
+     private class DodajJediDoZakonu implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            
+        }
+    }
+    
     private class AkcjaSave implements ActionListener {
 
         public AkcjaSave() {
