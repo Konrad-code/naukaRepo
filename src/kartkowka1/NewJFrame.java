@@ -3,7 +3,20 @@ package kartkowka1;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Scanner;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class NewJFrame extends javax.swing.JFrame {
 
@@ -11,10 +24,33 @@ public class NewJFrame extends javax.swing.JFrame {
      * Creates new form NewJFrame
      */
     static Color kolorMiecza = null;
+    private ArrayList<Jedi> listaJedi = new ArrayList<Jedi>();
+    private ArrayList<String> listaJediString = new ArrayList<String>();
+    private ArrayList<ZakonJedi> listaZakonow = new ArrayList<ZakonJedi>();
+    private ArrayList<String> listaZakonowString = new ArrayList<String>();
+    DefaultListModel DLM = new DefaultListModel();
+    DefaultListModel DLMZakony = new DefaultListModel();
     
     public NewJFrame() {
         initComponents();
+        pickColor(boxKolorMiecza.getSelectedItem().toString());
         zarejestrujJedi.addActionListener(new AkcjaSave());
+        zarejestrujJediWZakonie.addActionListener(new AkcjaSaveZakon());
+        wyczysc1.addActionListener(new AkcjaWyczyscZakony());
+        wyczysc2.addActionListener(new AkcjaWyczyscJedi());
+        eksportJedi.addActionListener(new AkcjaSaveFile());
+        eksportZakony.addActionListener(new AkcjaSaveFileZakony());
+        importJedi.addActionListener(new AkcjaOpenFileJedi());
+        importZakony.addActionListener(new AkcjaOpenFileZakony());
+        mocMiecza.setText("" + sliderMocMiecza.getValue());
+        jListaJedi.setModel(DLM);
+        jListaZakonowJedi.setModel(DLMZakony);
+        sliderMocMiecza.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                mocMiecza.setText("" + ((JSlider)e.getSource()).getValue());
+            }
+        });
     }
 
     /**
@@ -45,13 +81,13 @@ public class NewJFrame extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         jListaZakonowJedi = new javax.swing.JList<>();
         importZakony = new javax.swing.JButton();
-        EksportZakony = new javax.swing.JButton();
-        jTextField3 = new javax.swing.JTextField();
+        eksportZakony = new javax.swing.JButton();
+        adresZapisuZakonow = new javax.swing.JTextField();
         zarejestrujJediWZakonie = new javax.swing.JButton();
         wyczysc1 = new javax.swing.JButton();
         importJedi = new javax.swing.JButton();
         eksportJedi = new javax.swing.JButton();
-        jTextField4 = new javax.swing.JTextField();
+        adresZapisuJedi = new javax.swing.JTextField();
         zarejestrujJedi = new javax.swing.JButton();
         wyczysc2 = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
@@ -61,6 +97,7 @@ public class NewJFrame extends javax.swing.JFrame {
         przyciskJasna = new javax.swing.JRadioButton();
         przyciskCiemna = new javax.swing.JRadioButton();
         sliderMocMiecza = new javax.swing.JSlider();
+        mocMiecza = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("System zarządzania Jedi");
@@ -117,19 +154,19 @@ public class NewJFrame extends javax.swing.JFrame {
             }
         });
 
-        EksportZakony.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
-        EksportZakony.setText("Eksport");
-        EksportZakony.addActionListener(new java.awt.event.ActionListener() {
+        eksportZakony.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
+        eksportZakony.setText("Eksport");
+        eksportZakony.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                EksportZakonyActionPerformed(evt);
+                eksportZakonyActionPerformed(evt);
             }
         });
 
-        jTextField3.setEditable(false);
-        jTextField3.setText("C:\\Users\\mHm_MaXi\\Desktop\\zakony.txt");
-        jTextField3.addActionListener(new java.awt.event.ActionListener() {
+        adresZapisuZakonow.setEditable(false);
+        adresZapisuZakonow.setText("C:\\Users\\mHm_MaXi\\Desktop\\zakony.txt");
+        adresZapisuZakonow.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField3ActionPerformed(evt);
+                adresZapisuZakonowActionPerformed(evt);
             }
         });
 
@@ -165,11 +202,11 @@ public class NewJFrame extends javax.swing.JFrame {
             }
         });
 
-        jTextField4.setEditable(false);
-        jTextField4.setText("C:\\Users\\mHm_MaXi\\Desktop\\jedi.txt");
-        jTextField4.addActionListener(new java.awt.event.ActionListener() {
+        adresZapisuJedi.setEditable(false);
+        adresZapisuJedi.setText("C:\\Users\\mHm_MaXi\\Desktop\\jedi.txt");
+        adresZapisuJedi.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField4ActionPerformed(evt);
+                adresZapisuJediActionPerformed(evt);
             }
         });
 
@@ -223,8 +260,11 @@ public class NewJFrame extends javax.swing.JFrame {
 
         sliderMocMiecza.setMajorTickSpacing(1000);
         sliderMocMiecza.setMaximum(1000);
+        sliderMocMiecza.setMinorTickSpacing(1);
         sliderMocMiecza.setPaintLabels(true);
         sliderMocMiecza.setValue(500);
+
+        mocMiecza.setMinimumSize(new java.awt.Dimension(20, 20));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -235,7 +275,7 @@ public class NewJFrame extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addContainerGap()
                                         .addComponent(jLabel5)
@@ -245,80 +285,85 @@ public class NewJFrame extends javax.swing.JFrame {
                                                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE))
                                             .addGroup(jPanel1Layout.createSequentialGroup()
                                                 .addGap(55, 55, 55)
-                                                .addComponent(wprowadzNazweZakonu, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                                .addComponent(wprowadzNazweZakonu))))
                                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addComponent(wybierzJediDoZakonu, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(importZakony, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(EksportZakony, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18)
+                                    .addComponent(importZakony, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(eksportZakony, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(wybierzJediDoZakonu, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                                    .addComponent(jTextField3)
+                                    .addComponent(adresZapisuZakonow)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addGap(8, 8, 8)
                                         .addComponent(zarejestrujJediWZakonie, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                         .addComponent(wyczysc1, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(0, 0, Short.MAX_VALUE)))))
+                                        .addGap(0, 0, Short.MAX_VALUE))
+                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(135, 135, 135)))
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 356, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(18, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(43, 43, 43))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(149, 149, 149))))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(importJedi, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(eksportJedi, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(16, 16, 16)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel6)
-                                    .addComponent(jLabel7)
-                                    .addComponent(jLabel8))))
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel9)
-                                .addGap(24, 24, 24)
-                                .addComponent(przyciskCiemna, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(przyciskJasna, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(13, 13, 13))
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 356, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(18, Short.MAX_VALUE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
+                                .addGap(0, 0, Short.MAX_VALUE)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jTextField4)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(43, 43, 43))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(149, 149, 149))))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(importJedi, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(eksportJedi, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addGap(16, 16, 16)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel6)
+                                            .addComponent(jLabel7)
+                                            .addComponent(jLabel8))))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jLabel9)
+                                        .addGap(24, 24, 24)
+                                        .addComponent(przyciskCiemna, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(przyciskJasna, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(13, 13, 13))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(adresZapisuJedi)
                                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                                .addGap(8, 8, 8)
-                                                .addComponent(zarejestrujJedi, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(wyczysc2, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addComponent(wprowadzNazweJedi)
-                                            .addComponent(boxKolorMiecza, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(sliderMocMiecza, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE))
-                                        .addGap(0, 0, Short.MAX_VALUE))))))))
+                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                                        .addGap(8, 8, 8)
+                                                        .addComponent(zarejestrujJedi, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                        .addComponent(wyczysc2, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                    .addComponent(wprowadzNazweJedi)
+                                                    .addComponent(sliderMocMiecza, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE)
+                                                    .addComponent(boxKolorMiecza, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                                .addGap(0, 0, Short.MAX_VALUE))))))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(mocMiecza, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(127, 127, 127))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -352,36 +397,20 @@ public class NewJFrame extends javax.swing.JFrame {
                             .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(wprowadzNazweJedi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(wybierzJediDoZakonu)
-                                .addGap(76, 76, 76)
-                                .addComponent(importZakony)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(EksportZakony))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(zarejestrujJediWZakonie)
-                            .addComponent(wyczysc1))
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(boxKolorMiecza, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(sliderMocMiecza, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(mocMiecza, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(sliderMocMiecza, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(20, 20, 20)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(importJedi, javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -391,13 +420,31 @@ public class NewJFrame extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(eksportJedi))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(108, 108, 108)
-                                .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(53, 53, 53)
+                                .addComponent(adresZapisuJedi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(zarejestrujJedi)
                             .addComponent(wyczysc2))
-                        .addGap(19, 19, 19))))
+                        .addGap(19, 19, 19))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(wybierzJediDoZakonu)
+                                .addGap(127, 127, 127)
+                                .addComponent(importZakony)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(eksportZakony))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(adresZapisuZakonow, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(zarejestrujJediWZakonie)
+                            .addComponent(wyczysc1))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -429,13 +476,13 @@ public class NewJFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_importZakonyActionPerformed
 
-    private void EksportZakonyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EksportZakonyActionPerformed
+    private void eksportZakonyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eksportZakonyActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_EksportZakonyActionPerformed
+    }//GEN-LAST:event_eksportZakonyActionPerformed
 
-    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
+    private void adresZapisuZakonowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_adresZapisuZakonowActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField3ActionPerformed
+    }//GEN-LAST:event_adresZapisuZakonowActionPerformed
 
     private void zarejestrujJediWZakonieActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zarejestrujJediWZakonieActionPerformed
         // TODO add your handling code here:
@@ -453,9 +500,9 @@ public class NewJFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_eksportJediActionPerformed
 
-    private void jTextField4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField4ActionPerformed
+    private void adresZapisuJediActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_adresZapisuJediActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField4ActionPerformed
+    }//GEN-LAST:event_adresZapisuJediActionPerformed
 
     private void zarejestrujJediActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zarejestrujJediActionPerformed
         // TODO add your handling code here:
@@ -537,10 +584,12 @@ public class NewJFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton EksportZakony;
+    private javax.swing.JTextField adresZapisuJedi;
+    private javax.swing.JTextField adresZapisuZakonow;
     private javax.swing.JComboBox<String> boxKolorMiecza;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton eksportJedi;
+    private javax.swing.JButton eksportZakony;
     private javax.swing.JButton importJedi;
     private javax.swing.JButton importZakony;
     private javax.swing.JLabel jLabel1;
@@ -560,8 +609,7 @@ public class NewJFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
+    private javax.swing.JLabel mocMiecza;
     private javax.swing.JRadioButton przyciskCiemna;
     private javax.swing.JRadioButton przyciskJasna;
     private javax.swing.JSlider sliderMocMiecza;
@@ -581,9 +629,413 @@ public class NewJFrame extends javax.swing.JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if(!wprowadzNazweJedi.getText().isEmpty() && buttonGroup1.getSelection().isSelected()){
-                
+            String nazwa = "";
+            int moc = 0;
+            Color kolor = kolorMiecza;
+            if(!wprowadzNazweJedi.getText().isEmpty() && (przyciskCiemna.isSelected() || przyciskJasna.isSelected())){
+                System.out.println("Dokonuje zapisu nowego Jedi");
+                moc = sliderMocMiecza.getValue();
+                nazwa = wprowadzNazweJedi.getText();
+                Jedi tempJedi = new Jedi(nazwa, new Miecz(kolor), moc);
+                listaJedi.add(tempJedi);
+                listaJediString.add(tempJedi.toString());
+                DLM.addElement(tempJedi.toString());
+            }else{
+                JOptionPane.showMessageDialog(rootPane, "Wprowadz nazwe i wybierz strone mocy");
             }
         }
+    }
+    
+    private class AkcjaSaveZakon implements ActionListener {
+
+        public AkcjaSaveZakon() {
+        }
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String nazwa = "";
+            if(!wprowadzNazweZakonu.getText().isEmpty()){
+                System.out.println("Dokonuje zapisu nowego zakonu");
+                nazwa = wprowadzNazweZakonu.getText();
+                ZakonJedi tempZakon = new ZakonJedi(nazwa);
+                listaZakonow.add(tempZakon);
+                listaZakonowString.add(tempZakon.toString());
+                DLMZakony.addElement(tempZakon.toString());
+            }else{
+                JOptionPane.showMessageDialog(rootPane, "Wprowadz nazwe zakonu");
+            }
+        }
+    }
+    
+    private class AkcjaWyczyscJedi implements ActionListener {
+        public AkcjaWyczyscJedi() {
+        }
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Dokonuje wyczyszczenia Jedi");
+            sliderMocMiecza.setValue(500);
+            wprowadzNazweJedi.setText("");
+            przyciskCiemna.setSelected(false);
+            przyciskJasna.setSelected(false);
+        }
+    }
+    
+    private class AkcjaWyczyscZakony implements ActionListener {
+        public AkcjaWyczyscZakony() {
+        }
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Dokonuje wyczyszczenia nazwy zakonu");
+            wprowadzNazweZakonu.setText("");
+        }
+    }
+    
+    
+    class AkcjaOpenFileZakony implements ActionListener {                               // IMPORT ZAKONY
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            
+        }
+    }
+    
+    class AkcjaOpenFileJedi implements ActionListener {                                 // IMPORT JEDI
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            //			System.out.println("Open from menu");
+            JButton fcOpen = new JButton();
+            JFileChooser fileChooser = new JFileChooser();
+//	        fileChooser.setBounds(0, 30, 500, 300);
+            fileChooser.setCurrentDirectory(new File("C:/Users/mHm_MaXi"));
+            fileChooser.setDialogTitle("Select file to open");
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+
+            if (fileChooser.showOpenDialog(fcOpen) == JFileChooser.APPROVE_OPTION) {
+                System.out.println(fileChooser.getName(fileChooser.getSelectedFile()));
+//	           fileChooser.display(fileChooser.getSelectedFile());
+                String absolutePath = fileChooser.getSelectedFile().getAbsolutePath();
+                System.out.println("Wybrano: " + absolutePath);
+                File fileSelected = fileChooser.getSelectedFile();
+                String wyraz;
+                StringBuilder sb = new StringBuilder();
+                try{
+                    Scanner odczyt = new Scanner(fileSelected);
+                    while(odczyt.hasNextLine()){
+                        wyraz = odczyt.nextLine();
+                        sb.append(wyraz + "\n");
+                }
+                odczyt.close();
+                String input = sb.toString();
+                }catch(FileNotFoundException ew){
+                    System.out.println("Pusty plik = brak pliku");
+                    ew.printStackTrace();
+                }
+            }	        
+        }
+    }
+    
+    public void openedJedi(String input){
+        listaJedi.clear();
+        listaJediString.clear();
+        DLM.clear();
+        // DOPISAC JLISTE PRZEJSCIOWYCH JEDI   
+        char[] arr = input.toCharArray();
+        
+    }
+    
+    public void openedZakony(String input){
+        listaZakonow.clear();
+        listaZakonowString.clear();
+        DLMZakony.clear();
+           
+    }
+    
+    class AkcjaSaveFile implements ActionListener {                                 // EKSPORT JEDI
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String absolutePath = adresZapisuJedi.getText();
+            File myFile = new File(absolutePath);
+            try{
+                if(myFile.createNewFile()){                                         // JESLI PLIK NIE ISTNIEJE TO Z KONSOLI WPROWADZAMY CIAG ZNAKOW DO ZASZYFROWANIA, KTORY JEST ZAPISANY W ZADANEJ LOKALIZACJI
+                    System.out.println("Plik utworzony: " + myFile.getName());
+                    Scanner scanner = new Scanner(System.in);                
+                    System.out.println("Podaj ciag znakow w Stringu");
+                    String wyraz = scanner.nextLine();
+                    System.out.println("Wpisales ciag znakow: " + wyraz);
+
+                    try{                                                            // ZAPIS DO PLIKU W ZADANEJ LOKALIZACJI
+                        FileWriter output = new FileWriter(absolutePath);
+                        output.write(wyraz);
+                        output.close();
+                        System.out.println("Zapis zakonczony powodzeniem");
+                    } catch(IOException ez){
+                        System.out.println("Pojawil sie blad podczas zapisu");
+                        ez.printStackTrace();
+                    }
+                }
+            else
+                System.out.println("Plik już istnieje.");
+            }catch(IOException ez){
+                System.out.println("Pojawil sie blad");
+                ez.printStackTrace();
+            }
+            
+            System.out.println("Save");
+            String wyraz = "";
+            if(listaJedi.size() != 0) {
+                
+                StringBuilder sb = new StringBuilder();
+                for (String s : listaJediString) {
+                    sb.append(s + "\n");
+                }
+                wyraz = encrypt(sb.toString());
+                try{
+                    FileWriter output = new FileWriter(absolutePath);
+                    output.write(wyraz);
+                    output.close();
+                    System.out.println("Zapis zakonczony powodzeniem");
+                } catch(IOException exc){
+                    System.out.println("Pojawil sie blad podczas zapisu");
+                    exc.printStackTrace();
+                }
+            }else
+                    System.out.println("Pusta lista Jedi do zapisu. Nie mozna zapisac");
+        }
+    }
+    
+    class AkcjaSaveFileZakony implements ActionListener {                           // EKSPORT ZAKONOW
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String absolutePath = adresZapisuZakonow.getText();
+            File myFile = new File(absolutePath);
+            try{
+                if(myFile.createNewFile()){                                         // JESLI PLIK NIE ISTNIEJE TO Z KONSOLI WPROWADZAMY CIAG ZNAKOW DO ZASZYFROWANIA, KTORY JEST ZAPISANY W ZADANEJ LOKALIZACJI
+                    System.out.println("Plik utworzony: " + myFile.getName());
+                    Scanner scanner = new Scanner(System.in);                
+                    System.out.println("Podaj ciag znakow w Stringu");
+                    String wyraz = scanner.nextLine();
+                    System.out.println("Wpisales ciag znakow: " + wyraz);
+
+                    try{                                                            // ZAPIS DO PLIKU W ZADANEJ LOKALIZACJI
+                        FileWriter output = new FileWriter(absolutePath);
+                        output.write(wyraz);
+                        output.close();
+                        System.out.println("Zapis zakonczony powodzeniem");
+                    } catch(IOException ez){
+                        System.out.println("Pojawil sie blad podczas zapisu");
+                        ez.printStackTrace();
+                    }
+                }
+            else
+                System.out.println("Plik już istnieje.");
+            }catch(IOException ez){
+                System.out.println("Pojawil sie blad");
+                ez.printStackTrace();
+            }
+            
+            System.out.println("Save");
+            String wyraz = "";
+            if(listaZakonow.size() != 0) {
+                
+                StringBuilder sb = new StringBuilder();
+                for (String s : listaZakonowString) {
+                    sb.append(s + "\n");
+                }
+                wyraz = encrypt(sb.toString());
+                try{
+                    FileWriter output = new FileWriter(absolutePath);
+                    output.write(wyraz);
+                    output.close();
+                    System.out.println("Zapis zakonczony powodzeniem");
+                } catch(IOException exc){
+                    System.out.println("Pojawil sie blad podczas zapisu");
+                    exc.printStackTrace();
+                }
+            }else
+                    System.out.println("Pusta lista Jedi do zapisu. Nie mozna zapisac");
+        }
+    }
+    
+    public String encrypt(String podany){
+                
+        int koder = 0;
+        int c = 0;
+        int przekroczenie = 0;
+        
+        StringBuilder sb = new StringBuilder(podany);
+//        StringBuilder sb2 = new StringBuilder(sb);
+        
+        if((sb.length() % 2) == 0){                                               // 1. PARZYSTA ILOSC ZNAKOW
+            sb.reverse();                                                       // ODWROC KOLEJNOSC ZNAKOW W STRINGU
+            for(int i = 0; i < sb.length(); i++){
+                koder = i - sb.length();                                        // ZASTOSUJ KODER OPARTY O INDEKS ZNAKU ORAZ DLUGOSC STRINGA (ILOSC ZNAKOW)
+                c = (int)sb.charAt(i);
+                if((c + koder <= 127) && (c + koder > 0)){                      // Jesli znak po zmianie koderem nie wykroczy poza zakres kodow ASCII (0-127)
+                    c += koder;
+                }else if(c + koder <= 0){                                       // Jesli znak po zmianie koderem wykroczy w dol poza zakres kodow ASCII (0-127)
+                    koder *= (-1);
+                    przekroczenie = koder - c;
+                    c = 127 - (przekroczenie % 127);
+                }else if(c + koder > 127){                                      // Jesli znak po zmianie koderem wykroczy w gore poza zakres kodow ASCII (0-127)                   
+                    przekroczenie = koder - (127 - c);
+                    c = (przekroczenie % 127);
+                }
+                sb.setCharAt(i, (char)c);
+            }
+        }else{                                                                  // 2. NIEPARZYSTA ILOSC ZNAKOW - 3 WARIANTY SZYFROWANIA POWTARZAJACE SWOJE ZASTOSOWANIE DLA CO TRZECIEGO ZNAKU
+            for(int i = 0; i < sb.length(); i++){
+                c = (int)sb.charAt(i);
+                if((i %  3) == 2){                                              // 2.1.1. JESLI KOD ASCII ZNAKU PARZYSTY TO PODZIEL GO NA 2
+                    if((c > 0) && (c < 33)){
+                        koder = 11;
+                        if(c + koder > 33)
+                            c = koder - (33 - c);
+                        else
+                            c += koder; 
+                    }else if(c > 32 && c < 64)
+                        c *= 2;
+                    else if(((c % 2) == 0) && (c > 64))
+                        c /= 2;
+                    else if(sb.charAt(i) >= 'A' && sb.charAt(i) <= 'Z'){        // 2.1.2. DLA NIEPARZYSTEGO ASCII ZNAKU W PRZYPADKU DUZEJ LITERY ZMIENI JA NA MALA I PRZESUNIE 2 ZNAKI DALEJ
+                        int tmp = (int)Character.toLowerCase(c);                                                     // W PRZYPADKU MALEJ LITERY ZMIENI JA NA DUZA I PRZESUNIE 2 ZNAKI DALEJ
+                        tmp += 2;
+                        if(tmp == 123)
+                            c = 97;
+                        else
+                            c = tmp;
+                    } else if(sb.charAt(i) >= 'a' && sb.charAt(i) <= 'z'){                  
+                        int tmp = (int)Character.toUpperCase(c);
+                        tmp += 2;
+                        if(tmp == 91)
+                            c = 65;
+                        else
+                            c = tmp;
+                    }
+                }else if((i % 3) == 1){                                         // 2.2. ZASTOSUJ KODER OPARTY O INDEKS ZNAKU ORAZ DLUGOSC STRINGA (ILOSC ZNAKOW)
+                    koder = i - sb.length();
+                    if((c + koder <= 127) && (c + koder > 0)){                  // Jesli znak po zmianie koderem nie wykroczy poza zakres kodow ASCII (0-127)
+                        c += koder;
+                    }else if(c + koder <= 0){                                   // Jesli znak po zmianie koderem wykroczy w dol poza zakres kodow ASCII (0-127)
+                        koder *= (-1);
+                        przekroczenie = koder - c;
+                        c = 127 - (przekroczenie % 127);
+                    }else if(c + koder > 127){                                  // Jesli znak po zmianie koderem wykroczy w gore poza zakres kodow ASCII (0-127)                   
+                        przekroczenie = koder - (127 - c);
+                        c = (przekroczenie % 127);
+                    }
+                }else{                                                          // 2.3. ZASTOSUJ KODER OPARTY O INDEKS ZNAKU ORAZ MODULO (INDEKS ZNAKU)^2 Z LICZBY 2137
+                    if(i == 0)
+                        koder = (i * i) -  i - 2137 - (2137 % (1 * 1));
+                    else
+                        koder = (i * i) -  i - 2137 - (2137 % (i * i));
+                    if((c + koder <= 127) && (c + koder > 0)){                  // Jesli znak po zmianie koderem nie wykroczy poza zakres kodow ASCII (0-127)
+                        c += koder;
+                    }else if(c + koder <= 0){                                   // Jesli znak po zmianie koderem wykroczy w dol poza zakres kodow ASCII (0-127)
+                        koder *= (-1);
+                        przekroczenie = koder - c;
+                        c = 127 - (przekroczenie % 127);
+                    }else if(c + koder > 127){                                  // Jesli znak po zmianie koderem wykroczy w gore poza zakres kodow ASCII (0-127)                   
+                        przekroczenie = koder - (127 - c);
+                        c = (przekroczenie % 127);
+                    }
+                }
+                sb.setCharAt(i, (char)c);
+            }
+        }
+        return sb.toString();
+    }
+    
+    public String decrypt(String podany){
+        int koder = 0;
+        int c = 0;
+        int przekroczenie = 0;
+        
+        StringBuilder sb = new StringBuilder(podany);
+        
+        int warunek1 = 0;                                                       // zmienna dostarczana do warunku dla diagnozy czy odszyfrowujemy przypadek ktory byl zaszyfrowany dla kodera < 0 oraz kodu ASCII znaku c + koder < 0
+        int warunek2 = 0;                                                       // zmienna dostarczana do warunku dla diagnozy czy odszyfrowujemy przypadek ktory byl zaszyfrowany dla kodera > 0 oraz kodu ASCII znaku c + koder > 127
+        if((sb.length() % 2) == 0){                                             // 1. PARZYSTA ILOSC ZNAKOW
+            for(int i = 0; i < sb.length(); i++){
+                koder = i - sb.length();                                        // ZASTOSUJ KODER OPARTY O INDEKS ZNAKU ORAZ DLUGOSC STRINGA (ILOSC ZNAKOW)
+                c = (int)sb.charAt(i);
+                warunek1 = ((koder - (127 - c)) % 127);
+                warunek2 = 127 - ((koder - c) % 127);
+                if((c - koder <= 127) && (c - koder > 0))                      
+                    c -= koder;
+                else if((koder < 0) && (warunek1 + koder < 0)){                 
+                    przekroczenie = ( - koder) - (127 - c);  
+                    c = (przekroczenie % 127);
+                }else if((koder > 0)&& (warunek2 + koder > 127)){               
+                    przekroczenie = koder - c;
+                    c = 127 - (przekroczenie % 127);
+                }
+                sb.setCharAt(i, (char)c);
+            }
+            sb.reverse();                                                       // ODWROC KOLEJNOSC ZNAKOW W STRINGU            
+        }else{
+            for(int i = 0; i < sb.length(); i++){
+                c = (int)sb.charAt(i);
+                if((i %  3) == 2){                                              // 2.1.1. JESLI KOD ASCII ZNAKU PARZYSTY TO PODZIEL GO NA 2
+                    if((c > 0) && (c < 33)){
+                        koder = 11;
+                        if(c - koder < 0)
+                            c = 33 - (koder - c);
+                        else
+                            c -= koder;
+                    }else if(c > 32 && c < 64)
+                        c *= 2;
+                    else if(((c % 2) == 0) && (c > 64))
+                        c /= 2;
+                    else if(sb.charAt(i) >= 'A' && sb.charAt(i) <= 'Z'){        // 2.1.2. DLA NIEPARZYSTEGO ASCII ZNAKU W PRZYPADKU DUZEJ LITERY ZMIENI JA NA MALA I PRZESUNIE 2 ZNAKI DALEJ
+                        int tmp = (int)Character.toLowerCase(c);                                                     // W PRZYPADKU MALEJ LITERY ZMIENI JA NA DUZA I PRZESUNIE 2 ZNAKI DALEJ
+                        tmp -= 2;
+                        if(tmp == 95)
+                            c = 121;
+                        else
+                            c = tmp;
+                    } else if(sb.charAt(i) >= 'a' && sb.charAt(i) <= 'z'){                  
+                        int tmp = (int)Character.toUpperCase(c);
+                        tmp -= 2;
+                        if(tmp == 63)
+                            c = 89;
+                        else
+                            c = tmp;
+                    }
+                }else if((i % 3) == 1){                                           // 2.2. ZASTOSUJ KODER OPARTY O INDEKS ZNAKU ORAZ DLUGOSC STRINGA (ILOSC ZNAKOW)
+                    koder = i - sb.length();
+                    warunek1 = ((koder - (127 - c)) % 127);
+                    warunek2 = 127 - ((koder - c) % 127);
+                    if((c - koder <= 127) && (c - koder > 0))                      
+                        c -= koder;
+                    else if((koder < 0) && (warunek1 + koder < 0)){                 
+                        przekroczenie = ( - koder) - (127 - c);  
+                        c = (przekroczenie % 127);
+                    }else if((koder > 0)&& (warunek2 + koder > 127)){               
+                        przekroczenie = koder - c;
+                        c = 127 - (przekroczenie % 127);
+                    }
+                }else{                                                          // 2.3. ZASTOSUJ KODER OPARTY O INDEKS ZNAKU ORAZ MODULO (INDEKS ZNAKU)^2 Z LICZBY 2137
+                    if(i == 0)
+                        koder = (i * i) -  i - 2137 - (2137 % (1 * 1));
+                    else
+                        koder = (i * i) -  i - 2137 - (2137 % (i * i));
+                    warunek1 = ((koder - (127 - c)) % 127);
+                    warunek2 = 127 - ((koder - c) % 127);
+                    if((c - koder <= 127) && (c - koder > 0))                      
+                        c -= koder;
+                    else if((koder < 0) && (warunek1 + koder < 0)){                 
+                        przekroczenie = ( - koder) - (127 - c);  
+                        c = (przekroczenie % 127);
+                    }else if((koder > 0)&& (warunek2 + koder > 127)){               
+                        przekroczenie = koder - c;
+                        c = 127 - (przekroczenie % 127);
+                    }
+                }
+                sb.setCharAt(i, (char)c);
+            }
+        }
+        return sb.toString();
     }
 }

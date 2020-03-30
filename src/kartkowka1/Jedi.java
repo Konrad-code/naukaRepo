@@ -25,6 +25,6 @@ public class Jedi {
 
     @Override
     public String toString() {
-        return "Jedi {" + "nazwa = " + nazwa + '}';
+        return nazwa + "|" + moc + "|" + miecz.getKolor().toString() ;
     }
 }
