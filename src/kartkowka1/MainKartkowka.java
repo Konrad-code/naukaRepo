@@ -1,5 +1,6 @@
 package kartkowka1;
 
+/*
 // WYLICZANIE ILOSCI NACIEC DO WYKONANIA ZALEZNIE OD WYNIKOW GESTOSCI PROBEK I DOPUSZCZALNEJ ILOSCI NACIEC DLA POSZCZEGOLNEGO PACJENTA
 
 public class MainKartkowka {
@@ -69,3 +70,4 @@ public class MainKartkowka {
         wyswietlWynik(iloscDopuszczalna4, tab4);
     }
 }
+*/
