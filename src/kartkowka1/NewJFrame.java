@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import static java.lang.Integer.parseInt;
 import java.util.ArrayList;
 import java.util.Scanner;
 import javax.swing.DefaultListModel;
@@ -29,7 +30,7 @@ public class NewJFrame extends javax.swing.JFrame {
     private static final String URL = "jdbc:postgresql://localhost/jedi";
     private static final String LOGIN = "postgres";
     private static final String PASSWORD = "maxi55";
-    static Color kolorMiecza = null;
+    static String kolorMiecza = "";
     private ArrayList<Jedi> listaJedi = new ArrayList<Jedi>();
     private ArrayList<String> listaJediString = new ArrayList<String>();
     private ArrayList<ZakonJedi> listaZakonow = new ArrayList<ZakonJedi>();
@@ -536,19 +537,19 @@ public class NewJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_wprowadzNazweJediActionPerformed
 
     public static void pickColor(String nazwaKoloru){
-       Color k = null;
+       String k = "";
         if(nazwaKoloru.equals("kolor niebieski"))
-            k = Color.BLUE;
+            k = "niebieski";
         else if(nazwaKoloru.equals("kolor zielony"))
-            k = Color.GREEN;
+            k = "zielony";
         else if(nazwaKoloru.equals("kolor czerwony"))
-            k = Color.RED;
+            k = "czerwony";
         else if(nazwaKoloru.equals("kolor bialy"))
-            k = Color.WHITE;
+            k = "bialy";
         else if(nazwaKoloru.equals("kolor czarny"))
-            k = Color.BLACK;
+            k = "czarny";
         else if(nazwaKoloru.equals("kolor zolty"))
-            k = Color.YELLOW;
+            k = "zolty";
         kolorMiecza = k;
     }
     /**
@@ -671,7 +672,7 @@ public class NewJFrame extends javax.swing.JFrame {
         public void actionPerformed(ActionEvent e) {
             String nazwa = "";
             int moc = 0;
-            Color kolor = kolorMiecza;
+            String kolor = kolorMiecza;
             if(!wprowadzNazweJedi.getText().isEmpty() && (przyciskCiemna.isSelected() || przyciskJasna.isSelected())){
                 System.out.println("Dokonuje zapisu nowego Jedi");
                 moc = sliderMocMiecza.getValue();
@@ -749,27 +750,28 @@ public class NewJFrame extends javax.swing.JFrame {
             fileChooser.setCurrentDirectory(new File("C:/Users/mHm_MaXi"));
             fileChooser.setDialogTitle("Select file to open");
             fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-
+            String wyraz = "";
             if (fileChooser.showOpenDialog(fcOpen) == JFileChooser.APPROVE_OPTION) {
                 System.out.println(fileChooser.getName(fileChooser.getSelectedFile()));
 //	           fileChooser.display(fileChooser.getSelectedFile());
                 String absolutePath = fileChooser.getSelectedFile().getAbsolutePath();
                 System.out.println("Wybrano: " + absolutePath);
                 File fileSelected = fileChooser.getSelectedFile();
-                String wyraz;
                 StringBuilder sb = new StringBuilder();
                 try{
                     Scanner odczyt = new Scanner(fileSelected);
                     while(odczyt.hasNextLine()){
                         wyraz = odczyt.nextLine();
-                        sb.append(wyraz + "\n");
+                        sb.append(wyraz);
                 }
                 odczyt.close();
                 String input = sb.toString();
+                wyraz = decrypt(input);
                 }catch(FileNotFoundException ew){
                     System.out.println("Pusty plik = brak pliku");
                     ew.printStackTrace();
                 }
+            openedJedi(wyraz);
             }	        
         }
     }
@@ -777,17 +779,91 @@ public class NewJFrame extends javax.swing.JFrame {
     public void openedJedi(String input){
         listaJedi.clear();
         listaJediString.clear();
-        DLM.clear();
-        // DOPISAC JLISTE PRZEJSCIOWYCH JEDI   
-        char[] arr = input.toCharArray();
-        
+        DLM.removeAllElements();
+        // DOPISAC JLISTE PRZEJSCIOWYCH JEDI  
+        String nazwa = "";
+        int moc = 0;
+        String miecz = "";
+        String temp = "";
+        String[] innerTemp;
+        while(input.contains("\n"))
+            temp = input.substring(0, input.indexOf('\\'));
+            input = input.substring(input.indexOf('\\') + 2);
+            for(int i = 0; i < 2; i++){
+                innerTemp = temp.split("|");
+                nazwa = innerTemp[0];
+                moc = parseInt(innerTemp[1]);
+                miecz = innerTemp[2];
+                if(innerTemp.length > 3)
+                    System.out.println("Ta sekwencja nie powinna przekraczac 3 atrybutow. Prawdopodobnie cos poszlo nie tak");
+                Jedi tempJedi = new Jedi(nazwa, new Miecz(miecz), moc);
+                listaJedi.add(tempJedi);
+                listaJediString.add(tempJedi.toString());
+                DLM.addElement(tempJedi.toString());
+                // DOPISAC LISTE PRZEJSCIOWYCH JEDI
+            }
     }
     
     public void openedZakony(String input){
+        listaJedi.clear();
+        listaJediString.clear();
+        DLM.removeAllElements();
         listaZakonow.clear();
         listaZakonowString.clear();
-        DLMZakony.clear();
-           
+        DLMZakony.removeAllElements();
+        int rozmiar = 0;
+        ZakonJedi tempZakonJedi;
+        String nazwaZakonu = "";
+        boolean test = false;
+        String nazwa = "";
+        int moc = 0, iterator = 0;
+        String miecz = "";
+        String temp = "";
+        String temp2 = "";
+        String[] innerTemp;
+        String rozmiarowy = "";
+        while(input.contains("#"))
+            rozmiar = 0;
+            temp = input.substring(0, input.indexOf('#'));
+            input = input.substring(input.indexOf('#') + 1);
+            nazwaZakonu = temp;
+            rozmiarowy = input.substring(0, input.indexOf('#'));
+            char[] arr = rozmiarowy.toCharArray();
+            for(int i = 0; i < arr.length; i++){
+                if(arr[i] == '\\')
+                    rozmiar++;
+            }
+            Jedi[] tempJedis = new Jedi[rozmiar];                                       //  CREATE JEDIS CHAR
+            while(input.contains("\n")){  
+                iterator = 0;
+                temp2 = input.substring(0, input.indexOf('\\'));
+                input = input.substring(input.indexOf('\\') + 2);
+                for(int i = 0; i < 2; i++){
+                    innerTemp = temp2.split("|");
+                    nazwa = innerTemp[0];
+                    moc = parseInt(innerTemp[1]);
+                    miecz = innerTemp[2];
+                    if(innerTemp.length > 3)
+                        System.out.println("Ta sekwencja nie powinna przekraczac 3 atrybutow. Prawdopodobnie cos poszlo nie tak");
+                    Jedi tempJedi = new Jedi(nazwa, new Miecz(miecz), moc);
+                    iterator++;
+                    tempJedis[iterator] = tempJedi;
+                    for(String s : listaJediString){
+                        if(tempJedi.toString().equals(s)){
+                            test = true;
+                        }
+                    }
+                    if(!test){
+                        listaJedi.add(tempJedi);
+                        listaJediString.add(tempJedi.toString());
+                    }
+                    //  POMYSL CO Z DLM JEDI
+                }
+            tempZakonJedi = new ZakonJedi(nazwaZakonu, tempJedis);
+            listaZakonow.add(tempZakonJedi);
+            listaZakonowString.add(tempZakonJedi.toString());
+            DLMZakony.addElement(tempZakonJedi.toString());
+            }
     }
     
     class AkcjaSaveFile implements ActionListener {                                 // EKSPORT JEDI
@@ -827,7 +903,7 @@ public class NewJFrame extends javax.swing.JFrame {
                 
                 StringBuilder sb = new StringBuilder();
                 for (String s : listaJediString) {
-                    sb.append(s + "\n");
+                    sb.append(s);
                 }
                 wyraz = encrypt(sb.toString());
                 try{
@@ -881,7 +957,7 @@ public class NewJFrame extends javax.swing.JFrame {
                 
                 StringBuilder sb = new StringBuilder();
                 for (String s : listaZakonowString) {
-                    sb.append(s + "\n");
+                    sb.append(s);
                 }
                 wyraz = encrypt(sb.toString());
                 try{

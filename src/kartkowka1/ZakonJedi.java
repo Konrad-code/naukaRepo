@@ -10,6 +10,11 @@ public class ZakonJedi {
         this.nazwa = nazwa;
         this.jediSquad = new Jedi[0];
     }
+    
+    public ZakonJedi(String nazwa, Jedi[] jediSquad) {
+        this.nazwa = nazwa;
+        this.jediSquad = jediSquad;
+    }
 
     public String getNazwa() {
         return nazwa;
@@ -17,14 +22,17 @@ public class ZakonJedi {
 
     public Jedi[] getJediSquad() {
         return jediSquad;
-    }
+    }    
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-            sb.append("Nazwa zakonu Jedi: " + nazwa + "\n");
-            sb.append("\tJedi: " + Arrays.toString(jediSquad));
-            return sb.toString();
+        sb.append(nazwa + "#");
+//            sb.append(Arrays.toString(jediSquad));
+        for (Jedi jedi : jediSquad) {
+            sb.append(jedi.getNazwa() + "|" + jedi.getMoc() + "|" + jedi.getMiecz().getKolor() + "\n");
+        }
+        return sb.toString();
     }
     
     public void dodajJedi(Jedi jedi) {

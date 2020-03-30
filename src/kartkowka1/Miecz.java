@@ -3,17 +3,17 @@ package kartkowka1;
 import java.awt.Color;
 
 public class Miecz {
-    private Color kolor;
+    private String kolor;
     
-    public Miecz(Color kolor){
+    public Miecz(String kolor){
         this.kolor = kolor;
     }
 
-    public Color getKolor() {
+    public String getKolor() {
         return kolor;
     }
 
-    public void setKolor(Color kolor) {
+    public void setKolor(String kolor) {
         this.kolor = kolor;
     }
 
